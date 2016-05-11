@@ -30,7 +30,11 @@ namespace KCVDB.LocalAnalyze
         /// <summary>
         /// 艦これAPIのレスポンスのステータスコードを表す文字列
         /// </summary>
-        public string StatusCodeString { get; set; }
+        public string StatusCodeString
+        {
+            get { return _statusCodeStr; }
+            set { _statusCodeStr = value; _statusCode = -1; }
+        }
         /// <summary>
         /// 艦これAPIのレスポンスヘッダーのDateフィールドから得られる文字列
         /// </summary>
@@ -58,6 +62,7 @@ namespace KCVDB.LocalAnalyze
 
         #region Stringをパースしたプロパティ
         int _statusCode = -1;
+        string _statusCodeStr;
         /// <summary>
         /// 艦これAPIのレスポンスのステータスコードを表す数値
         /// </summary>
