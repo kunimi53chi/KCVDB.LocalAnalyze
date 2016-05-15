@@ -123,7 +123,7 @@ namespace KCVDB.LocalAnalyze
             foreach(var l in ReadAllLines(filePath))
             {
                 KCVDBRow row;
-                if (KCVDBRow.TryParse(l, out row)) yield break;
+                if (!KCVDBRow.TryParse(l, out row)) yield break;
                 else yield return row;
             }
         }
