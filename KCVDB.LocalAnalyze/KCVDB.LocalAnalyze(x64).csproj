@@ -67,6 +67,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Statics.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nomad.Archive.SevenZip\SevenZip.csproj">
+      <Project>{fb4299e9-2f4f-494e-aaeb-44779e930f07}</Project>
+      <Name>SevenZip</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
