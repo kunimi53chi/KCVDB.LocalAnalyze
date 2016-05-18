@@ -65,7 +65,9 @@
     <Compile Include="KCVDBLogFile.cs" />
     <Compile Include="KCVDBRow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Statics.cs" />
+    <Compile Include="Statics\BetaDistribution.cs" />
+    <Compile Include="Statics\ConfidenceInterval.cs" />
+    <Compile Include="Statics\SimpsonsRule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
