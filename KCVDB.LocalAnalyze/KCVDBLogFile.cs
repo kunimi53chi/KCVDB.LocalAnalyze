@@ -39,7 +39,7 @@ namespace KCVDB.LocalAnalyze
                 ms.Position = 0;
                 text = sr.ReadToEnd();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("KCVDB.LocalAnalyze : gzipファイルの解凍に失敗しました");
                 Console.WriteLine(ex.ToString());
@@ -77,25 +77,25 @@ namespace KCVDB.LocalAnalyze
             if (!File.Exists(filePath)) throw new FileNotFoundException("KCVDB.LocalAnalyze : 読込ファイルが存在しません");
 
             string text = null;
-            
-            switch(Path.GetExtension(filePath))
+
+            switch (Path.GetExtension(filePath))
             {
-                case ".log":
-                    try
-                    {
-                        text = File.ReadAllText(filePath);
-                    }
-                    catch(Exception ex)
-                    {
-                        Console.WriteLine("KCVDB.LocalAnalyze : ログファイルの読込に失敗しました");
-                        Console.WriteLine(ex.ToString());
-                    }
-                    break;
-                case ".gz":
-                    text = DecompressGzipAndReadAllText(filePath);
-                    break;
-                default:
-                    throw new FormatException("KCVDB.LocalAnalyze : 読込ファイル形式が正しくありません");
+            case ".log":
+                try
+                {
+                    text = File.ReadAllText(filePath);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("KCVDB.LocalAnalyze : ログファイルの読込に失敗しました");
+                    Console.WriteLine(ex.ToString());
+                }
+                break;
+            case ".gz":
+                text = DecompressGzipAndReadAllText(filePath);
+                break;
+            default:
+                throw new FormatException("KCVDB.LocalAnalyze : 読込ファイル形式が正しくありません");
             }
 
             return text;
@@ -110,7 +110,7 @@ namespace KCVDB.LocalAnalyze
         {
             var text = ReadAllText(filePath);
             if (text != null) return text.Replace(Environment.NewLine, "\n").Split('\n');
-            else return new string[0];            
+            else return new string[0];
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace KCVDB.LocalAnalyze
         /// <returns>行単位のパースされたアイテム</returns>
         public static IEnumerable<KCVDBRow> ParseAllLines(string filePath)
         {
-            foreach(var l in ReadAllLines(filePath))
+            foreach (var l in ReadAllLines(filePath))
             {
                 KCVDBRow row;
                 if (!KCVDBRow.TryParse(l, out row)) yield break;

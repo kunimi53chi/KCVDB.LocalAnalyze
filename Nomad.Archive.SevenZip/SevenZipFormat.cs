@@ -1,11 +1,10 @@
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.Win32.SafeHandles;
-using System.Security;
-using System.Runtime.InteropServices;
+using System.ComponentModel;
 using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
+using System.Security;
+using Microsoft.Win32.SafeHandles;
 
 namespace Nomad.Archive.SevenZip
 {
@@ -103,7 +102,7 @@ namespace Nomad.Archive.SevenZip
       GC.SuppressFinalize(this);
     }
 
-    public IInArchive CreateInArchive(Guid classId)
+    private T CreateInterface<T>(Guid classId) where T : class
     {
       if (LibHandle == null)
         throw new ObjectDisposedException("SevenZipFormat");
@@ -115,12 +114,22 @@ namespace Nomad.Archive.SevenZip
       if (CreateObject != null)
       {
         object Result;
-        Guid InterfaceId = typeof(IInArchive).GUID;
+        Guid InterfaceId = typeof(T).GUID;
         CreateObject(ref classId, ref InterfaceId, out Result);
-        return Result as IInArchive;
+        return Result as T;
       }
 
       return null;
+    }
+
+    public IInArchive CreateInArchive(Guid classId)
+    {
+      return CreateInterface<IInArchive>(classId);
+    }
+
+    public IOutArchive CreateOutArchive(Guid classId)
+    {
+      return CreateInterface<IOutArchive>(classId);
     }
 
     private static Dictionary<KnownSevenZipFormat, Guid> FFormatClassMap;

@@ -51,12 +51,28 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL">
-      <HintPath>..\packages\SevenZipSharp.0.64\lib\SevenZipSharp.dll</HintPath>
+      <HintPath>..\..\packages\SevenZipSharp.0.64\lib\SevenZipSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -65,24 +81,48 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DateTimeHelper.cs" />
+    <Compile Include="IO\Archive7z.cs" />
+    <Compile Include="IO\ArrayBuilder.cs" />
+    <Compile Include="IO\SevenZipLogFile.cs" />
+    <Compile Include="IO\BufferReader.cs" />
+    <Compile Include="IO\DirectoryDayEntry.cs" />
+    <Compile Include="IO\ArchiveDayEntry.cs" />
+    <Compile Include="IO\BlockingIO.cs" />
+    <Compile Include="IO\Extractor.cs" />
+    <Compile Include="IO\Grouping.cs" />
+    <Compile Include="IO\EventStream.cs" />
+    <Compile Include="IO\StreamLogFile.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="LogFile.cs" />
+    <Compile Include="LogSession.cs" />
+    <Compile Include="IO\DayEntry.cs" />
+    <Compile Include="IO\LogLines.cs" />
+    <Compile Include="IO\LogStream.cs" />
+    <Compile Include="IO\RingBuffer.cs" />
+    <Compile Include="IO\SevenZip.Compress.cs" />
+    <Compile Include="IO\Archiver.cs" />
+    <Compile Include="IO\SevenZip.ExtractToStreams.cs" />
+    <Compile Include="IO\SevenZip.CompressFromStreams.cs" />
+    <Compile Include="IO\SevenZipDll.cs" />
+    <Compile Include="IO\SevenZipExtractorExtensions.cs" />
     <Compile Include="KCVDBFileSearch.cs" />
     <Compile Include="KCVDBLogFile.cs" />
     <Compile Include="KCVDBRow.cs" />
+    <Compile Include="LogFileReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadingLogFileEventArgs.cs" />
+    <Compile Include="ReadingLogLineEventArgs.cs" />
     <Compile Include="Statics.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Nomad.Archive.SevenZip\SevenZip.csproj">
-      <Project>{fb4299e9-2f4f-494e-aaeb-44779e930f07}</Project>
-      <Name>SevenZip</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>XCOPY /Y "$(SolutionDir)7z.dll" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

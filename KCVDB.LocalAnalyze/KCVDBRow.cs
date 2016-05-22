@@ -179,7 +179,7 @@ namespace KCVDB.LocalAnalyze
             // [6] RequestBody
             // [7] ResponseBody
 
-            if(cell.Length < 8)
+            if(cell.Length != 8)
             {
                 kcvdbRow = new KCVDBRow();
                 return false;
@@ -196,6 +196,57 @@ namespace KCVDB.LocalAnalyze
             kcvdbRow.ResponseValue = cell[7];
 
             return true;
+        }
+
+        public KCVDBRow()
+        {
+        }
+
+        public KCVDBRow(string lineStr)
+        {
+            if (lineStr == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var cell = lineStr.Split('\t');
+            // [0] AgentID
+            // [1] SessionID
+            // [2] Path
+            // [3] HttpStatusCode
+            // [4] ServerTime
+            // [5] LocalTime
+            // [6] RequestBody
+            // [7] ResponseBody
+
+            if (cell.Length != 8)
+            {
+                throw new FormatException();
+            }
+
+            this.AgentId = cell[0];
+            this.SessionId = cell[1];
+            this.RequestUri = cell[2];
+            this.StatusCodeString = cell[3];
+            this.HttpDateString = cell[4];
+            this.LocalTimeString = cell[5];
+            this.RequestValue = cell[6];
+            this.ResponseValue = cell[7];
+        }
+
+        public override string ToString()
+        {
+            return string.Join("\t", new string[]
+            {
+                this.AgentId,
+                this.SessionId,
+                this.RequestUri,
+                this.StatusCodeString,
+                this.HttpDateString,
+                this.LocalTimeString,
+                this.RequestValue,
+                this.ResponseValue
+            });
         }
     }
 }

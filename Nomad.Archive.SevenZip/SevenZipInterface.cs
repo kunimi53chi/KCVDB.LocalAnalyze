@@ -1,90 +1,13 @@
-// Version 1.5
+// Version 2.0
 
 using System;
-using System.Runtime.InteropServices;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.COM;
 
 namespace Nomad.Archive.SevenZip
 {
-  [StructLayout(LayoutKind.Explicit, Size = 16)]
-  public struct PropVariant
-  {
-    [DllImport("ole32.dll")]
-    private static extern int PropVariantClear(ref PropVariant pvar);
-
-    [FieldOffset(0)]
-    public ushort vt;
-    [FieldOffset(8)]
-    public IntPtr pointerValue;
-    [FieldOffset(8)]
-    public byte byteValue;
-    [FieldOffset(8)]
-    public long longValue;
-    [FieldOffset(8)]
-    public System.Runtime.InteropServices.ComTypes.FILETIME filetime;
-
-    public VarEnum VarType
-    {
-      get { return (VarEnum)vt; }
-    }
-
-    public void Clear()
-    {
-      switch (VarType)
-      {
-        case VarEnum.VT_EMPTY:
-          break;
-        case VarEnum.VT_NULL:
-        case VarEnum.VT_I2:
-        case VarEnum.VT_I4:
-        case VarEnum.VT_R4:
-        case VarEnum.VT_R8:
-        case VarEnum.VT_CY:
-        case VarEnum.VT_DATE:
-        case VarEnum.VT_ERROR:
-        case VarEnum.VT_BOOL:
-        //case VarEnum.VT_DECIMAL:
-        case VarEnum.VT_I1:
-        case VarEnum.VT_UI1:
-        case VarEnum.VT_UI2:
-        case VarEnum.VT_UI4:
-        case VarEnum.VT_I8:
-        case VarEnum.VT_UI8:
-        case VarEnum.VT_INT:
-        case VarEnum.VT_UINT:
-        case VarEnum.VT_HRESULT:
-        case VarEnum.VT_FILETIME:
-          vt = 0;
-          break;
-        default:
-          PropVariantClear(ref this);
-          break;
-      }
-    }
-
-    public object GetObject()
-    {
-      switch (VarType)
-      {
-        case VarEnum.VT_EMPTY:
-          return null;
-        case VarEnum.VT_FILETIME:
-          return DateTime.FromFileTime(longValue);
-        default:
-          GCHandle PropHandle = GCHandle.Alloc(this, GCHandleType.Pinned);
-          try
-          {
-            return Marshal.GetObjectForNativeVariant(PropHandle.AddrOfPinnedObject());
-          }
-          finally
-          {
-            PropHandle.Free();
-          }
-      }
-    }
-  }
-
   [ComImport]
   [Guid("23170F69-40C1-278A-0000-000000050000")]
   [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -121,6 +44,16 @@ namespace Nomad.Archive.SevenZip
     //string CryptoGetTextPassword();
   }
 
+  [ComImport]
+  [Guid("23170F69-40C1-278A-0000-000500110000")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  public interface ICryptoGetTextPassword2
+  {
+    void CryptoGetTextPassword2(
+      [MarshalAs(UnmanagedType.Bool)] out bool passwordIsDefined,
+      [MarshalAs(UnmanagedType.BStr)] out string password);
+  }
+
   public enum AskMode : int
   {
     kExtract = 0,
@@ -141,9 +74,11 @@ namespace Nomad.Archive.SevenZip
   [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
   public interface IArchiveExtractCallback //: IProgress
   {
+    // IProgress
     void SetTotal(ulong total);
     void SetCompleted([In] ref ulong completeValue);
 
+    // IArchiveExtractCallback
     [PreserveSig]
     int GetStream(
       uint index,
@@ -163,6 +98,7 @@ namespace Nomad.Archive.SevenZip
     void GetProperty(
       ItemPropId propID, // PROPID
       IntPtr value); // PROPVARIANT
+
     [PreserveSig]
     int GetStream(
       [MarshalAs(UnmanagedType.LPWStr)] string name,
@@ -231,10 +167,12 @@ namespace Nomad.Archive.SevenZip
     //  uint size,
     //  IntPtr processedSize); // ref uint processedSize
 
+    // ISequentialInStream
     uint Read(
       [Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] byte[] data,
       uint size);
 
+    // IInStream
     //[PreserveSig]
     void Seek(
       long offset,
@@ -247,12 +185,14 @@ namespace Nomad.Archive.SevenZip
   [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
   public interface IOutStream //: ISequentialOutStream
   {
+    // ISequentialOutStream
     [PreserveSig]
     int Write(
       [In, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] byte[] data,
       uint size,
       IntPtr processedSize); // ref uint processedSize
 
+    // IOutStream
     //[PreserveSig]
     void Seek(
       long offset,
@@ -261,6 +201,22 @@ namespace Nomad.Archive.SevenZip
 
     [PreserveSig]
     int SetSize(long newSize);
+  }
+
+  [ComImport]
+  [Guid("23170F69-40C1-278A-0000-000300060000")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  public interface IStreamGetSize
+  {
+    ulong GetSize();
+  }
+
+  [ComImport]
+  [Guid("23170F69-40C1-278A-0000-000300070000")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  public interface IOutStreamFlush
+  {
+    void Flush();
   }
 
   public enum ItemPropId : uint
@@ -296,6 +252,26 @@ namespace Nomad.Archive.SevenZip
     kpidComment,
     kpidPosition,
     kpidPrefix,
+    // 4.58+
+    kpidNumSubFolders,
+    kpidNumSubFiles,
+    kpidUnpackVer,
+    kpidVolume,
+    kpidIsVolume,
+    kpidOffset,
+    kpidLinks,
+    kpidNumBlocks,
+    kpidNumVolumes,
+    kpidTimeType,
+    // 4.60+
+    kpidBit64,
+    kpidBigEndian,
+    kpidCpu,
+    kpidPhySize,
+    kpidHeadersSize,
+    kpidChecksum,
+    kpidCharacts,
+    kpidVa,
 
     kpidTotalSize = 0x1100,
     kpidFreeSpace,
@@ -308,7 +284,6 @@ namespace Nomad.Archive.SevenZip
     kpidUserDefined = 0x10000
   }
 
-
   [ComImport]
   [Guid("23170F69-40C1-278A-0000-000600600000")]
   [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -320,7 +295,8 @@ namespace Nomad.Archive.SevenZip
       IInStream stream,
       /*[MarshalAs(UnmanagedType.U8)]*/ [In] ref ulong maxCheckStartPosition,
       [MarshalAs(UnmanagedType.Interface)] IArchiveOpenCallback openArchiveCallback);
-    void Close();
+    [PreserveSig]
+    int Close();
     //void GetNumberOfItems([In] ref uint numItem);
     uint GetNumberOfItems();
 
@@ -360,6 +336,91 @@ namespace Nomad.Archive.SevenZip
       ref ushort varType); //VARTYPE
   }
 
+  [ComImport]
+  [Guid("23170F69-40C1-278A-0000-000600800000")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  public interface IArchiveUpdateCallback // : IProgress
+  {
+    // IProgress
+    void SetTotal(ulong total);
+    void SetCompleted([In] ref ulong completeValue);
+
+    // IArchiveUpdateCallback
+    void GetUpdateItemInfo(int index,
+      out int newData, // 1 - new data, 0 - old data
+      out int newProperties, // 1 - new properties, 0 - old properties
+      out uint indexInArchive); // -1 if there is no in archive, or if doesn't matter
+
+    void GetProperty(
+      int index,
+      ItemPropId propID, // PROPID
+      IntPtr value); // PROPVARIANT
+
+    void GetStream(int index, out ISequentialInStream inStream);
+
+    void SetOperationResult(int operationResult);
+  }
+
+  [ComImport]
+  [Guid("23170F69-40C1-278A-0000-000600820000")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  public interface IArchiveUpdateCallback2 // : IArchiveUpdateCallback
+  {
+    // IProgress
+    void SetTotal(ulong total);
+    void SetCompleted([In] ref ulong completeValue);
+
+    // IArchiveUpdateCallback
+    void GetUpdateItemInfo(int index,
+      out int newData, // 1 - new data, 0 - old data
+      out int newProperties, // 1 - new properties, 0 - old properties
+      out uint indexInArchive); // -1 if there is no in archive, or if doesn't matter
+
+    void GetProperty(
+      int index,
+      ItemPropId propID, // PROPID
+      IntPtr value); // PROPVARIANT
+
+    void GetStream(int index, out ISequentialInStream inStream);
+
+    void SetOperationResult(int operationResult);
+
+    // IArchiveUpdateCallback2
+    void GetVolumeSize(int index, out ulong size);
+    void GetVolumeStream(int index, out ISequentialOutStream volumeStream);
+  }
+
+  public enum FileTimeType : int
+  {
+    kWindows,
+    kUnix,
+    kDOS
+  }
+
+  [ComImport]
+  [Guid("23170F69-40C1-278A-0000-000600A00000")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  public interface IOutArchive
+  {
+    void UpdateItems(
+      ISequentialOutStream outStream,
+      int numItems,
+      IArchiveUpdateCallback updateCallback);
+
+    FileTimeType GetFileTimeType();
+  }
+
+  [ComImport]
+  [Guid("23170F69-40C1-278A-0000-000600030000")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  public interface ISetProperties
+  {
+    void SetProperties(
+      [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr, SizeParamIndex = 2)] string[] names,
+      IntPtr values,
+      int numProperties);
+  }
+
   public enum ArchivePropId : uint
   {
     kName = 0,
@@ -396,33 +457,43 @@ namespace Nomad.Archive.SevenZip
 
   public class StreamWrapper : IDisposable
   {
-    protected Stream BaseStream;
+    protected Stream _BaseStream;
 
     protected StreamWrapper(Stream baseStream)
     {
-      BaseStream = baseStream;
+      _BaseStream = baseStream;
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
-      BaseStream.Close();
+      _BaseStream.Close();
     }
 
     public virtual void Seek(long offset, uint seekOrigin, IntPtr newPosition)
     {
-      long Position = (uint)BaseStream.Seek(offset, (SeekOrigin)seekOrigin);
+      long Position = (uint)_BaseStream.Seek(offset, (SeekOrigin)seekOrigin);
       if (newPosition != IntPtr.Zero)
         Marshal.WriteInt64(newPosition, Position);
     }
+
+    public Stream BaseStream
+    {
+      get { return _BaseStream; }
+    }
   }
 
-  public class InStreamWrapper : StreamWrapper, ISequentialInStream, IInStream
+  public class InStreamWrapper : StreamWrapper, ISequentialInStream, IInStream//, IStreamGetSize
   {
     public InStreamWrapper(Stream baseStream) : base(baseStream) { }
 
     public uint Read(byte[] data, uint size)
     {
-      return (uint)BaseStream.Read(data, 0, (int)size);
+      return (uint)_BaseStream.Read(data, 0, (int)size);
+    }
+
+    public ulong GetSize()
+    {
+      return (ulong)BaseStream.Length;
     }
   }
 
@@ -430,18 +501,19 @@ namespace Nomad.Archive.SevenZip
   // Useful for long opened archives (prevent locking archive file on disk).
   public class InStreamTimedWrapper : StreamWrapper, ISequentialInStream, IInStream
   {
-    private string BaseStreamFileName;
+    private string _BaseStreamFileName;
     private long BaseStreamLastPosition;
     private Timer CloseTimer;
 
-    private const int KeepAliveInterval = 10 * 1000; // 10 sec
+    private const int KeepAliveInterval = 5 * 1000; // 5 sec
 
     public InStreamTimedWrapper(Stream baseStream)
       : base(baseStream)
     {
-      if ((BaseStream is FileStream) && !BaseStream.CanWrite && BaseStream.CanSeek)
+      FileStream BaseFileStream = _BaseStream as FileStream;
+      if ((BaseFileStream != null) && !_BaseStream.CanWrite && _BaseStream.CanSeek)
       {
-        BaseStreamFileName = ((FileStream)BaseStream).Name;
+        _BaseStreamFileName = BaseFileStream.Name;
         CloseTimer = new Timer(new TimerCallback(CloseStream), null, KeepAliveInterval, Timeout.Infinite);
       }
     }
@@ -454,23 +526,35 @@ namespace Nomad.Archive.SevenZip
         CloseTimer = null;
       }
 
-      if (BaseStream != null)
+      if (_BaseStream != null)
       {
-        if (BaseStream.CanSeek)
-          BaseStreamLastPosition = BaseStream.Position;
-        BaseStream.Close();
-        BaseStream = null;
+        if (_BaseStream.CanSeek)
+          BaseStreamLastPosition = _BaseStream.Position;
+        _BaseStream.Close();
+        _BaseStream = null;
       }
+    }
+
+    public override void Dispose()
+    {
+      CloseStream(null);
+      _BaseStreamFileName = null;
+    }
+
+    public void Flush()
+    {
+      CloseStream(null);
     }
 
     protected void ReopenStream()
     {
-      if (BaseStream == null)
+      // If base stream closed (by us or by external code) then try to reopen stream
+      if ((_BaseStream == null) || !_BaseStream.CanRead)
       {
-        if (BaseStreamFileName != null)
+        if (_BaseStreamFileName != null)
         {
-          BaseStream = new FileStream(BaseStreamFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-          BaseStream.Position = BaseStreamLastPosition;
+          _BaseStream = new FileStream(_BaseStreamFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+          _BaseStream.Position = BaseStreamLastPosition;
           CloseTimer = new Timer(new TimerCallback(CloseStream), null, KeepAliveInterval, Timeout.Infinite);
         }
         else
@@ -492,13 +576,27 @@ namespace Nomad.Archive.SevenZip
     public uint Read(byte[] data, uint size)
     {
       ReopenStream();
-      return (uint)BaseStream.Read(data, 0, (int)size);
+      return (uint)_BaseStream.Read(data, 0, (int)size);
     }
 
     public override void Seek(long offset, uint seekOrigin, IntPtr newPosition)
     {
-      ReopenStream();
-      base.Seek(offset, seekOrigin, newPosition);
+      if ((_BaseStream == null) && (_BaseStreamFileName != null) && (offset == 0) && (seekOrigin == 0))
+      {
+        BaseStreamLastPosition = 0;
+        if (newPosition != IntPtr.Zero)
+          Marshal.WriteInt64(newPosition, BaseStreamLastPosition);
+      }
+      else
+      {
+        ReopenStream();
+        base.Seek(offset, seekOrigin, newPosition);
+      }
+    }
+
+    public string BaseStreamFileName
+    {
+      get { return _BaseStreamFileName; }
     }
   }
 
@@ -508,13 +606,13 @@ namespace Nomad.Archive.SevenZip
 
     public int SetSize(long newSize)
     {
-      BaseStream.SetLength(newSize);
+      _BaseStream.SetLength(newSize);
       return 0;
     }
 
     public int Write(byte[] data, uint size, IntPtr processedSize)
     {
-      BaseStream.Write(data, 0, (int)size);
+      _BaseStream.Write(data, 0, (int)size);
       if (processedSize != IntPtr.Zero)
         Marshal.WriteInt32(processedSize, (int)size);
       return 0;
