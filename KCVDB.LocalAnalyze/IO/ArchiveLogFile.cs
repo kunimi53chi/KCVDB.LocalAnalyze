@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.COM;
-using SevenZip;
 
 namespace KCVDB.LocalAnalyze.IO
 {

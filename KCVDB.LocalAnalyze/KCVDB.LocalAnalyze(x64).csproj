@@ -112,6 +112,9 @@
     <Compile Include="KCVDBLogFile.cs" />
     <Compile Include="KCVDBRow.cs" />
     <Compile Include="LogFileReader.cs" />
+    <Compile Include="Microsoft.COM\Ole32.cs" />
+    <Compile Include="Nomad.Archive.SevenZip\SevenZipFormat.cs" />
+    <Compile Include="Nomad.Archive.SevenZip\SevenZipInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadingLogFileEventArgs.cs" />
     <Compile Include="ReadingLogLineEventArgs.cs" />
@@ -121,12 +124,6 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Nomad.Archive.SevenZip\SevenZip.csproj">
-      <Project>{fb4299e9-2f4f-494e-aaeb-44779e930f07}</Project>
-      <Name>SevenZip</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
