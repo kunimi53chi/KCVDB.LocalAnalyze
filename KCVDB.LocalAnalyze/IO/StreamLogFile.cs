@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KCVDB.LocalAnalyze.IO
 {
-    sealed class StreamLogFile : LogFile
+    internal sealed class StreamLogFile : LogFile
     {
         public StreamLogFile(Log manager, string path, Stream stream)
             : base(manager)

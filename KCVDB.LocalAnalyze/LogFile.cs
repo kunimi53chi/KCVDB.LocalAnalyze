@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using KCVDB.LocalAnalyze.IO;
 
 namespace KCVDB.LocalAnalyze
 {

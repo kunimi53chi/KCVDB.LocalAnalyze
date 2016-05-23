@@ -3,8 +3,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using KCVDB.LocalAnalyze.IO;
 
 namespace KCVDB.LocalAnalyze
