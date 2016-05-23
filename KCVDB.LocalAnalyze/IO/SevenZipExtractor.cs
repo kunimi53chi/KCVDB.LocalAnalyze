@@ -40,9 +40,11 @@ namespace KCVDB.LocalAnalyze.IO
                             return !(bool)value.GetObject();
                         })
                         .ToArray();
-                    var callback = new ArchiveExtractCallback(archive);
-                    callback.Subscribe(subject);
-                    archive.Extract(indices, (uint)indices.Length, 0, callback);
+                    using (var callback = new ArchiveExtractCallback(archive))
+                    {
+                        callback.Subscribe(subject);
+                        archive.Extract(indices, (uint)indices.Length, 0, callback);
+                    }
                 }
                 subject.OnCompleted();
                 return subject;
@@ -68,11 +70,12 @@ namespace KCVDB.LocalAnalyze.IO
             }
         }
 
-        private sealed class ArchiveExtractCallback : IArchiveExtractCallback, IObservable<SevenZipArchiveFile>
+        private sealed class ArchiveExtractCallback : IArchiveExtractCallback, IObservable<SevenZipArchiveFile>, IDisposable
         {
             int IArchiveExtractCallback.GetStream(uint index, out ISequentialOutStream outStream, AskMode askExtractMode)
             {
-                var stream = new ObservableStream();
+                this.stream?.Dispose();
+                this.stream = new ObservableStream();
                 var archiveFile = new SevenZipArchiveFile(this.archive, index, stream);
                 this.subject.OnNext(archiveFile);
                 if (archiveFile.Cancel)
@@ -107,6 +110,11 @@ namespace KCVDB.LocalAnalyze.IO
                 return this.subject.Subscribe(observer);
             }
 
+            public void Dispose()
+            {
+                this.stream?.Dispose();
+            }
+
             public ArchiveExtractCallback(IInArchive archive)
             {
                 this.archive = archive;
@@ -115,6 +123,8 @@ namespace KCVDB.LocalAnalyze.IO
             private readonly Subject<SevenZipArchiveFile> subject = new Subject<SevenZipArchiveFile>();
 
             private readonly IInArchive archive;
+
+            private ObservableStream stream;
         }
 
         static SevenZipExtractor()

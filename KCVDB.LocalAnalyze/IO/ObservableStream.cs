@@ -56,7 +56,6 @@ namespace KCVDB.LocalAnalyze.IO
             if (disposing && !this.isDisposed)
             {
                 this.subject.OnCompleted();
-                this.subject.Dispose();
                 isDisposed = true;
             }
             base.Dispose(disposing);

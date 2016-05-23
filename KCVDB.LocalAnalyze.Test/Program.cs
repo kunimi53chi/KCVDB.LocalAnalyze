@@ -14,13 +14,22 @@ namespace KCVDB.LocalAnalyze.Test
             new Log(@"D:\BlobDataDownloader\Publish\2016\05\03.7z").Subscribe(
                 logFile =>
                 {
-                    Console.WriteLine(logFile.Path);
+                    Console.Write($"{logFile.Path}: ");
+                    var count = 0;
                     logFile.Subscribe(
                         line =>
                         {
-                            rows.Add(new KCVDBRow(line));
+                            var row = new KCVDBRow(line);
+                            ++count;
+                        },
+                        error =>
+                        {
+                            throw error;
+                        },
+                        () =>
+                        {
+                            Console.WriteLine($"{count}行");
                         });
-                    rows.Clear();
                 });
         }
     }
