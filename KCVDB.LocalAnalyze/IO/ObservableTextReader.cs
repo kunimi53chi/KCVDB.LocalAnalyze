@@ -7,29 +7,14 @@ using System.Text;
 
 namespace KCVDB.LocalAnalyze.IO
 {
-    internal sealed class ObservableTextReader
+    internal sealed class ObservableTextReader : IObserver<ArraySegment<byte>>, IObservable<string>
     {
-        public IObservable<string> ReadLine(IObservable<ArraySegment<byte>> source)
+        public IDisposable Subscribe(IObserver<string> observer)
         {
-            var subject = new Subject<IEnumerable<string>>();
-            source.Subscribe(
-                segment =>
-                {
-                    subject.OnNext(this.ReadLines(segment));
-                },
-                error =>
-                {
-                    subject.OnError(error);
-                },
-                () =>
-                {
-                    subject.OnNext(this.ReadLastLines());
-                    subject.OnCompleted();
-                });
-            return subject.SelectMany(lines => lines.ToObservable());
+            return this.subject.Subscribe(observer);
         }
 
-        private IEnumerable<string> ReadLines(ArraySegment<byte> source)
+        public void OnNext(ArraySegment<byte> source)
         {
             var offset = source.Offset;
             var end = source.Offset + source.Count;
@@ -38,7 +23,7 @@ namespace KCVDB.LocalAnalyze.IO
                 if (source.Array[i] == '\r' || (previousByte != '\r' && source.Array[i] == '\n'))
                 {
                     this.builder.Append(source.Array, offset, i - offset);
-                    yield return Encoding.UTF8.GetString(this.builder.Array, 0, this.builder.Count);
+                    this.subject.OnNext(Encoding.UTF8.GetString(this.builder.Array, 0, this.builder.Count));
                     this.builder.Clear();
                 }
                 if (source.Array[i] == '\r' || source.Array[i] == '\n')
@@ -50,14 +35,22 @@ namespace KCVDB.LocalAnalyze.IO
             this.builder.Append(source.Array, offset, end - offset);
         }
 
-        private IEnumerable<string> ReadLastLines()
+        public void OnError(Exception error)
+        {
+            this.subject.OnError(error);
+        }
+
+        public void OnCompleted()
         {
             if (this.builder.Count > 0)
             {
-                yield return Encoding.UTF8.GetString(this.builder.Array, 0, this.builder.Count);
+                this.subject.OnNext(Encoding.UTF8.GetString(this.builder.Array, 0, this.builder.Count));
                 this.builder.Clear();
             }
+            this.subject.OnCompleted();
         }
+
+        private readonly Subject<string> subject = new Subject<string>();
 
         private readonly ArrayBuilder<byte> builder = new ArrayBuilder<byte>();
 

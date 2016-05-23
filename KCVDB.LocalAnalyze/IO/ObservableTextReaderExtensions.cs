@@ -10,7 +10,9 @@ namespace KCVDB.LocalAnalyze.IO
     {
         public static IObservable<string> ReadLine(this IObservable<ArraySegment<byte>> source)
         {
-            return new ObservableTextReader().ReadLine(source);
+            var subject = new ObservableTextReader();
+            source.Subscribe(subject);
+            return subject;
         }
     }
 }
