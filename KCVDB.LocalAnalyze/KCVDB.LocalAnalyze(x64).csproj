@@ -50,10 +50,6 @@
     <DocumentationFile>bin\x64\Release\KCVDB.LocalAnalyze%28x64%29.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SevenZipSharp.0.64\lib\SevenZipSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
@@ -82,8 +78,16 @@
   <ItemGroup>
     <Compile Include="DateTimeHelper.cs" />
     <Compile Include="IO\Archive7z.cs" />
+    <Compile Include="IO\ArchiveLogFile.cs" />
     <Compile Include="IO\ArrayBuilder.cs" />
-    <Compile Include="IO\SevenZipLogFile.cs" />
+    <Compile Include="IO\Async\BlockingIO.cs" />
+    <Compile Include="IO\Disposable.cs" />
+    <Compile Include="IO\MyObservable.cs" />
+    <Compile Include="IO\ObservableTextReader.cs" />
+    <Compile Include="IO\ObservableStream.cs" />
+    <Compile Include="IO\ObservableTextReaderExtensions.cs" />
+    <Compile Include="IO\SevenZipArchiveFile.cs" />
+    <Compile Include="IO\SevenZipExtractor.cs" />
     <Compile Include="IO\BufferReader.cs" />
     <Compile Include="IO\DirectoryDayEntry.cs" />
     <Compile Include="IO\ArchiveDayEntry.cs" />
@@ -101,7 +105,6 @@
     <Compile Include="IO\RingBuffer.cs" />
     <Compile Include="IO\SevenZip.Compress.cs" />
     <Compile Include="IO\Archiver.cs" />
-    <Compile Include="IO\SevenZip.ExtractToStreams.cs" />
     <Compile Include="IO\SevenZip.CompressFromStreams.cs" />
     <Compile Include="IO\SevenZipDll.cs" />
     <Compile Include="IO\SevenZipExtractorExtensions.cs" />
@@ -118,6 +121,12 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nomad.Archive.SevenZip\SevenZip.csproj">
+      <Project>{fb4299e9-2f4f-494e-aaeb-44779e930f07}</Project>
+      <Name>SevenZip</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -6,98 +6,44 @@ using System.Reactive.Subjects;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using KCVDB.LocalAnalyze.IO;
-using SevenZip;
 
 namespace KCVDB.LocalAnalyze
 {
-    public sealed class Log
+    public sealed class Log : IObservable<LogFile>
     {
-        public string RootPath;
-
-        public DateTimeOffset StartDateTime;
-
-        public DateTimeOffset EndDateTime;
-
-        private readonly Subject<LogFile> readingFile;
-
-        public readonly IObservable<LogFile> ReadingFile;
-
-        public Log()
+        public Log(string path)
         {
-            this.StartDateTime = DateTimeOffset.MinValue;
-            this.EndDateTime = DateTimeOffset.MaxValue;
-            this.readingFile = new Subject<LogFile>();
-            this.ReadingFile = this.readingFile.AsObservable();
+            this.Path = path;
         }
 
-        public void BeginReading()
+        public IDisposable Subscribe(IObserver<LogFile> observer)
         {
-            var rootInfo = new DirectoryInfo(System.IO.Path.Combine(Assembly.GetExecutingAssembly().Location, this.RootPath));
-            foreach (var yearInfo in rootInfo.EnumerateDirectories())
+            var subject = new Subject<LogFile>();
+            var result = subject.Subscribe(observer);
+            var directoryInfo = new DirectoryInfo(this.Path);
+            if (directoryInfo.Exists)
             {
-                int year;
-                if (int.TryParse(yearInfo.Name, out year))
+                foreach (var fileInfo in directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories))
                 {
-                    foreach (var monthInfo in yearInfo.EnumerateDirectories())
-                    {
-                        int month;
-                        if (int.TryParse(monthInfo.Name, out month))
-                        {
-                            foreach (var dayInfo in monthInfo.EnumerateDirectories())
-                            {
-                                int day;
-                                if (int.TryParse(dayInfo.Name, out day))
-                                {
-                                    this.StartReading(ToDate(year, month, day), dayInfo);
-                                }
-                            }
-                            foreach (var dayInfo in monthInfo.EnumerateFiles())
-                            {
-                                int day;
-                                if (int.TryParse(dayInfo.Name, out day))
-                                {
-                                    this.StartReading(ToDate(year, month, day), dayInfo);
-                                }
-                            }
-                        }
-                    }
+                    this.Read(subject, fileInfo);
                 }
             }
-            foreach (var fileInfo in rootInfo.EnumerateFiles())
+            else
             {
-                var array = fileInfo.Name.Split(new string[] { "-" }, StringSplitOptions.None);
-                int year;
-                int month;
-                int day;
-                if (array.Length == 3 && int.TryParse(array[0], out year) && int.TryParse(array[1], out month) && int.TryParse(array[2], out day))
+                var fileInfo = new FileInfo(this.Path);
+                if (fileInfo.Exists)
                 {
-                    this.StartReading(ToDate(year, month, day), fileInfo);
+                    this.Read(subject, fileInfo);
                 }
             }
-            this.readingFile.OnCompleted();
+            subject.OnCompleted();
+            subject.Dispose();
+            return result;
         }
 
-        private static DateTimeOffset ToDate(int year, int month, int day)
+        private void Read(Subject<LogFile> subject, FileInfo fileInfo)
         {
-            return new DateTimeOffset(year, month, day, 0, 0, 0, new TimeSpan(9, 0, 0));
-        }
-
-        private void StartReading(DateTimeOffset date, FileInfo fileInfo)
-        {
-            using (var extractor = new SevenZipExtractor(fileInfo.FullName))
-            {
-                extractor.ExtractFiles(args =>
-                {
-                    var logFile = new SevenZipLogFile(this, date, GetSessionId(fileInfo.Name));
-                    this.readingFile.OnNext(logFile);
-                    logFile.StartReading(args);
-                });
-            }
-        }
-
-        private void StartReading(DateTimeOffset date, DirectoryInfo directoryInfo)
-        {
-            foreach (var fileInfo in directoryInfo.EnumerateFiles())
+            if (fileInfo.Extension == ".log" || fileInfo.Extension == ".gz")
             {
                 Stream stream = fileInfo.OpenRead();
                 if (fileInfo.Extension == ".gz")
@@ -106,38 +52,22 @@ namespace KCVDB.LocalAnalyze
                 }
                 using (stream)
                 {
-                    var logFile = new StreamLogFile(this, date, GetSessionId(fileInfo.Name));
-                    this.readingFile.OnNext(logFile);
-                    logFile.StartReading(stream);
+                    subject.OnNext(new StreamLogFile(this, fileInfo.FullName, stream));
                 }
             }
-        }
-
-        private static Guid GetSessionId(string name)
-        {
-            return new Guid(System.IO.Path.GetFileNameWithoutExtension(name));
-        }
-
-        static Log()
-        {
-            if (IntPtr.Size == 4)
+            else if (fileInfo.Extension == ".7z")
             {
-                SevenZipBase.SetLibraryPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "x86", "7z.dll"));
-            }
-            else if (IntPtr.Size == 8)
-            {
-                SevenZipBase.SetLibraryPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "x64", "7z.dll"));
+                new SevenZipExtractor(fileInfo.FullName).Subscribe(archiveFile =>
+                {
+                    subject.OnNext(new ArchiveLogFile(this, fileInfo.FullName, archiveFile));
+                });
             }
             else
             {
-                throw new PlatformNotSupportedException();
+                throw new NotSupportedException();
             }
         }
 
-        //private static readonly Regex yearRegex = new Regex("^(?<year>[0-9]{4})$", RegexOptions.Compiled);
-        //private static readonly Regex yearMonthDayRegex = new Regex("^(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2})$", RegexOptions.Compiled);
-        //private static readonly Regex monthRegex = new Regex("^(?<month>[0-9]{2})$", RegexOptions.Compiled);
-        //private static readonly Regex monthDayRegex = new Regex("^(?<month>[0-9]{2})-(?<day>[0-9]{2})", RegexOptions.Compiled);
-        //private static readonly Regex dayRegex = new Regex("^(?<day>[0-9]{2})$", RegexOptions.Compiled);
+        public readonly string Path;
     }
 }

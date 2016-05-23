@@ -11,20 +11,17 @@ namespace KCVDB.LocalAnalyze.Test
         static void Main(string[] args)
         {
             var rows = new List<KCVDBRow>();
-            var log = new Log();
-            log.RootPath = @"D:\BlobDataDownloader";
-            log.ReadingFile.Subscribe(
+            new Log(@"D:\BlobDataDownloader\Publish\2016\05\03.7z").Subscribe(
                 logFile =>
                 {
-                    Console.WriteLine(logFile.SessionId);
-                    logFile.ReadingRow.Subscribe(
-                        row =>
+                    Console.WriteLine(logFile.Path);
+                    logFile.Subscribe(
+                        line =>
                         {
-                            rows.Add(row);
+                            rows.Add(new KCVDBRow(line));
                         });
                     rows.Clear();
                 });
-            log.BeginReading();
         }
     }
 }
