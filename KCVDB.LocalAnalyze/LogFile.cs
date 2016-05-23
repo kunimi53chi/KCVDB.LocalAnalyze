@@ -4,12 +4,12 @@ namespace KCVDB.LocalAnalyze
 {
     public abstract class LogFile : IObservable<string>
     {
-        protected LogFile(Log log)
+        protected LogFile(LogDirectory directory)
         {
-            this.Log = log;
+            this.Directory = directory;
         }
 
-        public readonly Log Log;
+        public readonly LogDirectory Directory;
 
         public abstract string Path { get; }
 

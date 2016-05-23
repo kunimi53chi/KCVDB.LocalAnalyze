@@ -11,7 +11,7 @@ namespace KCVDB.LocalAnalyze.Test
         static void Main(string[] args)
         {
             var rows = new List<KCVDBRow>();
-            new Log(@"D:\BlobDataDownloader\Publish\2016\05\03.7z").Subscribe(
+            new LogDirectory(@"D:\BlobDataDownloader\Publish\2016\05\03.7z").Subscribe(
                 logFile =>
                 {
                     Console.Write($"{logFile.Path}: ");

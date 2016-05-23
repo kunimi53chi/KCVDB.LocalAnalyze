@@ -6,8 +6,8 @@ namespace KCVDB.LocalAnalyze.IO
 {
     internal sealed class StreamLogFile : LogFile
     {
-        public StreamLogFile(Log manager, string path, Stream stream)
-            : base(manager)
+        public StreamLogFile(LogDirectory directory, string path, Stream stream)
+            : base(directory)
         {
             this.path = path;
             this.stream = stream;

@@ -5,8 +5,8 @@ namespace KCVDB.LocalAnalyze.IO
 {
     internal sealed class ArchiveLogFile : LogFile
     {
-        public ArchiveLogFile(Log log, string path, SevenZipArchiveFile archiveFile)
-            : base(log)
+        public ArchiveLogFile(LogDirectory directory, string path, SevenZipArchiveFile archiveFile)
+            : base(directory)
         {
             this.archiveFile = archiveFile;
             this.filePath = path;

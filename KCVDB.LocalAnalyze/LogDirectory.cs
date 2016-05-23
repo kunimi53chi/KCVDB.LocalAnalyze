@@ -7,9 +7,9 @@ using KCVDB.LocalAnalyze.IO;
 
 namespace KCVDB.LocalAnalyze
 {
-    public sealed class Log : IObservable<LogFile>
+    public sealed class LogDirectory : IObservable<LogFile>
     {
-        public Log(string path)
+        public LogDirectory(string path)
         {
             this.Path = path;
         }

@@ -86,7 +86,7 @@
     <Compile Include="IO\SevenZipExtractor.cs" />
     <Compile Include="IO\BufferReader.cs" />
     <Compile Include="IO\StreamLogFile.cs" />
-    <Compile Include="Log.cs" />
+    <Compile Include="LogDirectory.cs" />
     <Compile Include="LogFile.cs" />
     <Compile Include="KCVDBFileSearch.cs" />
     <Compile Include="KCVDBLogFile.cs" />
