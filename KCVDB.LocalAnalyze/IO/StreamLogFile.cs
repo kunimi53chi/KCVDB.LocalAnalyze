@@ -27,9 +27,12 @@ namespace KCVDB.LocalAnalyze.IO
             var disposable = subject.ReadLine().Subscribe(observer);
             var buffer = new byte[1 << 21];
             int count;
-            while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
+            using (stream)
             {
-                subject.OnNext(new ArraySegment<byte>(buffer, 0, count));
+                while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    subject.OnNext(new ArraySegment<byte>(buffer, 0, count));
+                }
             }
             subject.OnCompleted();
             return disposable;
