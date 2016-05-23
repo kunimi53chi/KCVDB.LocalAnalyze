@@ -21,7 +21,7 @@ namespace KCVDB.LocalAnalyze
             var directoryInfo = new DirectoryInfo(this.Path);
             if (directoryInfo.Exists)
             {
-                foreach (var fileInfo in directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+                foreach (var fileInfo in directoryInfo.GetFiles("*", SearchOption.AllDirectories))
                 {
                     this.Read(subject, fileInfo);
                 }
