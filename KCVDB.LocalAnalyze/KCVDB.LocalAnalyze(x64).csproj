@@ -77,6 +77,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DateTimeHelper.cs" />
+    <Compile Include="Event\ExceptionEventArgs.cs" />
+    <Compile Include="Event\LogFileEventArgs.cs" />
+    <Compile Include="Event\RowAnalyzingEventArgs.cs" />
     <Compile Include="IO\ArchiveLogFile.cs" />
     <Compile Include="IO\ArrayBuilder.cs" />
     <Compile Include="IO\ObservableTextReader.cs" />
@@ -91,6 +94,7 @@
     <Compile Include="KCVDBFileSearch.cs" />
     <Compile Include="KCVDBLogFile.cs" />
     <Compile Include="KCVDBRow.cs" />
+    <Compile Include="LogFileAnalyzeEvents.cs" />
     <Compile Include="Microsoft.COM\Ole32.cs" />
     <Compile Include="Nomad.Archive.SevenZip\SevenZipFormat.cs" />
     <Compile Include="Nomad.Archive.SevenZip\SevenZipInterface.cs" />
@@ -104,6 +108,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

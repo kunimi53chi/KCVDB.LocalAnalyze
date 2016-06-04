@@ -74,7 +74,7 @@ namespace KCVDB.LocalAnalyze.IO
         {
             int IArchiveExtractCallback.GetStream(uint index, out ISequentialOutStream outStream, AskMode askExtractMode)
             {
-                this.stream?.Dispose();
+                if(this.stream != null) this.stream.Dispose();
                 this.stream = new ObservableStream();
                 var archiveFile = new SevenZipArchiveFile(this.archive, index, stream);
                 this.subject.OnNext(archiveFile);
@@ -112,7 +112,7 @@ namespace KCVDB.LocalAnalyze.IO
 
             public void Dispose()
             {
-                this.stream?.Dispose();
+                if(this.stream != null) this.stream.Dispose();
             }
 
             public ArchiveExtractCallback(IInArchive archive)

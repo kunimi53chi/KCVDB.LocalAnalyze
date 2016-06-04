@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace KCVDB.LocalAnalyze.Test
 {
@@ -10,27 +11,37 @@ namespace KCVDB.LocalAnalyze.Test
     {
         static void Main(string[] args)
         {
-            var rows = new List<KCVDBRow>();
-            new LogDirectory(@"D:\BlobDataDownloader\Publish\2016\05\03.7z").Subscribe(
-                logFile =>
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+
+            var events = new LogFileAnalyzeEvents();
+            var filecount = 0;
+            var line = 0;
+            events.OnFileLoaded += (_, e) =>
                 {
-                    Console.Write($"{logFile.Path}: ");
-                    var count = 0;
-                    logFile.Subscribe(
-                        line =>
-                        {
-                            var row = new KCVDBRow(line);
-                            ++count;
-                        },
-                        error =>
-                        {
-                            throw error;
-                        },
-                        () =>
-                        {
-                            Console.WriteLine($"{count}行");
-                        });
-                });
+                    Console.Write("{0}:", e.LogFile.Path);
+                    filecount++;
+                    Console.Title = filecount.ToString();
+                    line = 0;
+                };
+            events.OnAnalyzing += (_, e) =>
+                {
+                    line++;
+                };
+            events.OnError += (_, e) =>
+                {
+                    Console.WriteLine(e.Exception.ToString());
+                };
+            events.OnCompleted += (_, e) =>
+                {
+                    Console.WriteLine("{0}行", line);
+                };
+
+            KCVDBLogFile.AnalyzeAllSevenZipArchives(@"D:\blob\2016-05\2016-05-09.7z", events, 1000, 50);
+
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.Elapsed);
         }
     }
 }

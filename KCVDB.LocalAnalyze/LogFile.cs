@@ -28,5 +28,6 @@ namespace KCVDB.LocalAnalyze
         public abstract IDisposable Subscribe(IObserver<string> observer);
 
         private Guid? sessionId;
+
     }
 }

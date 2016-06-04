@@ -127,5 +127,53 @@ namespace KCVDB.LocalAnalyze
                 else yield return row;
             }
         }
+
+        /// <summary>
+        /// 7zipファイルを解凍しながら行単位でパースしつつ、解析イベントを挿入します
+        /// </summary>
+        /// <param name="archive">7zipの書庫ファイル</param>
+        /// <param name="events">解析イベントの一覧</param>
+        /// <param name="skip">冒頭のスキップするファイル数</param>
+        /// <param name="take">取るファイル数</param>
+        public static void AnalyzeAllSevenZipArchives(string archive, LogFileAnalyzeEvents events, int skip = 0, int take = -1)
+        {
+            var skipremain = skip;
+            var takeremain = (take < 0) ? int.MaxValue : take;
+
+            new LogDirectory(archive).Subscribe(
+                logFile =>
+                {
+                    if(skipremain > 0)
+                    {
+                        skipremain--;
+                        return;
+                    }
+                    if (takeremain <= 0) return;
+                    takeremain--;
+
+                    if (events.OnFileLoaded != null) events.OnFileLoaded(logFile, new Event.LogFileEventArgs(logFile));
+                    logFile.Subscribe(
+                        line =>
+                        {
+                            if (events.OnAnalyzing != null)
+                            {
+                                KCVDBRow row;
+                                if(KCVDBRow.TryParse(line, out row))
+                                {
+                                    events.OnAnalyzing(logFile, new Event.RowAnalyzingEventArgs(logFile, row));
+                                }
+                            }
+                        },
+                        error =>
+                        {
+                            if (events.OnError != null) events.OnError(logFile, new Event.ExceptionEventArgs(error));
+                        },
+                        () =>
+                        {
+                            if (events.OnCompleted != null) events.OnCompleted(logFile, new Event.LogFileEventArgs(logFile));
+                        });
+                }
+                );
+        }
     }
 }
