@@ -38,7 +38,7 @@ namespace KCVDB.LocalAnalyze.Test
                     Console.WriteLine("{0}行", line);
                 };
 
-            KCVDBLogFile.AnalyzeAllSevenZipArchives(@"D:\blob\2016-05\2016-05-09.7z", events, 1000, 50);
+            KCVDBLogFile.AnalyzeAllSevenZipArchives(@"D:\ちんちん.7z", events, 1000, 50);
 
             stopwatch.Stop();
             Console.WriteLine(stopwatch.Elapsed);

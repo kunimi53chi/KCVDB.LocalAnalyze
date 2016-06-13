@@ -94,6 +94,8 @@ namespace KCVDB.LocalAnalyze
             case ".gz":
                 text = DecompressGzipAndReadAllText(filePath);
                 break;
+            case "":
+                return null;
             default:
                 throw new FormatException("KCVDB.LocalAnalyze : 読込ファイル形式が正しくありません");
             }

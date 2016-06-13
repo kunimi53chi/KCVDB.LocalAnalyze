@@ -165,7 +165,7 @@ namespace KCVDB.LocalAnalyze.Statics
                 {
                     var xi = (double)i / (double)numOfSeparation / 2.0;
                     var xi_1 = (double)(i - 1) / (double)numOfSeparation / 2.0;
-                    if(pn[i]-pn[i-1] > 0)
+                    if (pn[i] - pn[i - 1] > 0)
                     {
                         return (q - pn[i - 1]) / (pn[i] - pn[i - 1]) * xi + (pn[i] - q) / (pn[i] - pn[i - 1]) * xi_1;
                     }

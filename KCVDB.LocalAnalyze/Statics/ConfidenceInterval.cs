@@ -96,6 +96,12 @@ namespace KCVDB.LocalAnalyze.Statics
             result.Lower = 1 - BetaDistribution.QBeta(1 - alpha / 2, sampleNum - successNum + 1, successNum);
             result.SampleNum = sampleNum;
 
+            if(result.Upper == 0.0 && result.Lower == 0.0)
+            {
+                result.Upper = result.Median;
+                result.Lower = result.Median;//近似しきれない場合対策
+            }
+
             return result;
         }
     }

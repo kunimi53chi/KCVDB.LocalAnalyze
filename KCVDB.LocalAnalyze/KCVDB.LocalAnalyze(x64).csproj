@@ -77,9 +77,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DateTimeHelper.cs" />
+    <Compile Include="DeserializeClassFormat\RootPort.cs" />
+    <Compile Include="DeserializeClassFormat\RootSlotItem.cs" />
+    <Compile Include="DeserializeClassFormat\RootStart2.cs" />
     <Compile Include="Event\ExceptionEventArgs.cs" />
     <Compile Include="Event\LogFileEventArgs.cs" />
     <Compile Include="Event\RowAnalyzingEventArgs.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="HoppoAlphaData\HoppoJsonStart2.cs" />
     <Compile Include="IO\ArchiveLogFile.cs" />
     <Compile Include="IO\ArrayBuilder.cs" />
     <Compile Include="IO\ObservableTextReader.cs" />
