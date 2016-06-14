@@ -153,6 +153,24 @@ namespace KCVDB.LocalAnalyze
                 return _kcsapiPaths[4];
             }
         }
+
+        /// <summary>
+        /// 艦これサーバーのIPアドレス
+        /// RequestUriがnullの場合はnull, それ以外で取得に失敗した場合はstring.Emptyを返します
+        /// </summary>
+        public string KancolleServerIPAddress
+        {
+            get
+            {
+                if (_requestUri == null) return null;
+                if (_kcsapiPaths == null)
+                {
+                    _kcsapiPaths = _requestUri.Replace("//", "/").Split('/');
+                }
+                if (_kcsapiPaths.Length < 2) return string.Empty;
+                return _kcsapiPaths[1];
+            }
+        }
         #endregion
 
         /// <summary>
@@ -247,6 +265,17 @@ namespace KCVDB.LocalAnalyze
                 this.RequestValue,
                 this.ResponseValue
             });
+        }
+
+        /// <summary>
+        /// どのサーバー所属か判定
+        /// </summary>
+        /// <returns>不明ならばKancolleServer.Unknownが返されます</returns>
+        public KancolleServer DetectServer()
+        {
+            var server = Const.KancolleSeverData.ServerList.Where(x => x.IPAddress == this.KancolleServerIPAddress).FirstOrDefault();
+            if (server == null) return KancolleServer.Unknown;
+            else return server;
         }
     }
 }

@@ -76,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Const\KancolleSeverData.cs" />
     <Compile Include="DateTimeHelper.cs" />
     <Compile Include="DeserializeClassFormat\RootPort.cs" />
     <Compile Include="DeserializeClassFormat\RootSlotItem.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="IO\SevenZipExtractor.cs" />
     <Compile Include="IO\BufferReader.cs" />
     <Compile Include="IO\StreamLogFile.cs" />
+    <Compile Include="KancolleServer.cs" />
     <Compile Include="LogDirectory.cs" />
     <Compile Include="LogFile.cs" />
     <Compile Include="KCVDBFileSearch.cs" />
@@ -104,6 +106,11 @@
     <Compile Include="Nomad.Archive.SevenZip\SevenZipFormat.cs" />
     <Compile Include="Nomad.Archive.SevenZip\SevenZipInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Statics\BetaDistribution.cs" />
     <Compile Include="Statics\ConfidenceInterval.cs" />
     <Compile Include="Statics\SimpsonsRule.cs" />
@@ -113,7 +120,12 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

@@ -38,10 +38,11 @@ namespace KCVDB.LocalAnalyze.Test
                     Console.WriteLine("{0}行", line);
                 };
 
-            KCVDBLogFile.AnalyzeAllSevenZipArchives(@"D:\ちんちん.7z", events, 1000, 50);
+            KCVDBLogFile.AnalyzeAllSevenZipArchives(@"ちんちん.7z", events);
 
             stopwatch.Stop();
             Console.WriteLine(stopwatch.Elapsed);
+
         }
     }
 }
